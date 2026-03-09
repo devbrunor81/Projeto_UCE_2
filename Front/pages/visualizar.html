@@ -1,0 +1,69 @@
+<!-- ===== ITEMS.HTML — fragmento injetado pelo router ===== -->
+
+<link rel="stylesheet" href="../css/items.css">
+
+<!-- Barra de topo UFPB -->
+<header class="topbar">
+  <img
+    class="topbar__logo"
+    src=https://www.ccsa.ufpb.br/ufpb/contents/noticias/nota-de-repudio/logo-ufpb.png/@@images/6ab839bc-0d0c-4f09-8325-698542f409fe.png"
+    alt="Logo UFPB"
+    onerror="this.style.display='none'"
+  >
+  <div class="topbar__name">
+    UFPB
+    <span>Achados &amp; Perdidos</span>
+  </div>
+</header>
+
+<section class="items-page">
+
+  <!-- Cabeçalho da seção -->
+  <header class="items-header">
+    <h2 class="items-header__title">
+     <span> Anúncios</span>
+    </h2>
+    <span class="items-header__count" id="items-count">0 itens</span>
+  </header>
+
+  <!-- Filtro status -->
+  <nav class="items-filters" aria-label="Filtrar por status">
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    <button class="filter-btn" data-filter="lost">Perdidos</button>
+    <button class="filter-btn" data-filter="found">Achados</button>
+  </nav>
+
+  <!-- Filtro categorias -->
+  <nav class="items-categories" aria-label="Filtrar por categoria">
+    <button class="category-btn active" data-category="all">
+      <span class="category-btn__icon">🗂️</span> Todas
+    </button>
+    <button class="category-btn" data-category="acessorio">
+      <span class="category-btn__icon">👜</span> Acessório
+    </button>
+    <button class="category-btn" data-category="eletronico">
+      <span class="category-btn__icon">📱</span> Eletrônico
+    </button>
+    <button class="category-btn" data-category="documento">
+      <span class="category-btn__icon">📄</span> Documento
+    </button>
+    <button class="category-btn" data-category="roupa">
+      <span class="category-btn__icon">👕</span> Roupa/Calçado
+    </button>
+    <button class="category-btn" data-category="outros">
+      <span class="category-btn__icon">📦</span> Outros
+    </button>
+  </nav>
+
+  <!-- Grade de cards -->
+  <div class="items-grid" id="items-grid" role="list" aria-live="polite">
+    <!-- Cards injetados via JS -->
+  </div>
+
+</section>
+
+<!-- Lightbox global -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualizar imagem">
+  <button class="lightbox__close" id="lightbox-close" aria-label="Fechar">✕</button>
+  <img class="lightbox__img" id="lightbox-img" src="" alt="Imagem ampliada">
+</div>
