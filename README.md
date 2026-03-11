@@ -1,2 +1,1 @@
-# Projeto_UCE_2
-Projeto para disciplina UCE 2
+# Instruções para rodar o projeto:
