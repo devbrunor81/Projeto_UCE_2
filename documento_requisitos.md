@@ -10,12 +10,11 @@
 
 **Banco de dados e catálogo:**
 
-* Os itens são salvos no banco com informações: imagem, nome, descrição(opcional) e data de encontro.
+* Os itens são salvos no banco com informações: imagem, nome, descrição(opcional), categoria, data de encontro, retirado(flag booleana), nome_resgatante, matrícula_resgatante
+  
+* Para retirar um item, é necessário vincular informações de quem o retirou, como nome, matrícula ou e-mail.  
 
-* Os itens do banco que estiverem marcados como “retirado”, ficarão ocultos do catálogo  
-  * Para retirar um item, é necessário vincular informações de quem o retirou, como nome, matrícula ou e-mail.  
-      
-* Os itens do banco que estiverem marcados como “retirado” devem ser visualizados em uma aba específica de retirados juntamente com as informações de quem retirou.
+* O site pode exibir tanto os itens perdidos e os retirados
 
 **Permissões do Administrador:**
 
