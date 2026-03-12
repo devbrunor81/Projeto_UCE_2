@@ -5,7 +5,57 @@ const Pages = (() => {
     }
 
     function anunciar() {
+        const form = document.getElementById('anunciar-form');
+        const mensagemDiv = document.getElementById('mensagem');
 
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const item = {
+                nome: formData.get('nome'),
+                descricao: formData.get('descricao'),
+                data_encontro: formData.get('data_encontro'),
+                retirado: formData.get('retirado') === 'on'
+            };
+
+            try {
+                const response = await fetch(`${CONFIG.API_URL}/items`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(item)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const resultado = await response.json();
+                
+                // Sucesso
+                mensagemDiv.textContent = `✅ Item anunciado com sucesso! (ID: ${resultado.id})`;
+                mensagemDiv.className = 'sucesso';
+                mensagemDiv.style.display = 'block';
+
+                // Limpar formulário
+                form.reset();
+
+                // Redirecionar após 2 segundos
+                setTimeout(() => {
+                    Router.navigate('/visualizar');
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erro ao anunciar:', error);
+                mensagemDiv.textContent = `❌ Erro ao anunciar item: ${error.message}`;
+                mensagemDiv.className = 'erro';
+                mensagemDiv.style.display = 'block';
+            }
+        });
     }
 
     function visualizar() {
@@ -183,15 +233,15 @@ const Pages = (() => {
                     : null;
 
                 return `
-                    <article class="item-card" role="listitem" data-status="${item.status}" data-id="${item.id}">
+                    <article class="item-card" role="listitem" data-status="${item.retirado}" data-id="${item.id}">
                         <div style="position:relative">
                             <span class="item-card__badge item-card__badge--${statusClass}">${statusLabel}</span>
                             ${buildCarousel(item.images, item.id)}
                         </div>
                         <div class="item-card__body">
                             ${cat ? `<span class="item-card__category">${cat.icon} ${cat.label}</span>` : ''}
-                            <h3 class="item-card__title">${escHtml(item.title)}</h3>
-                            <p  class="item-card__desc">${escHtml(item.desc)}</p>
+                            <h3 class="item-card__title">${escHtml(item.nome)}</h3>
+                            <p  class="item-card__desc">${escHtml(item.descricao)}</p>
                             <div class="item-card__meta">
                                 <span class="item-card__date">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -200,7 +250,7 @@ const Pages = (() => {
                                         <line x1="8"  y1="2" x2="8"  y2="6"/>
                                         <line x1="3"  y1="10" x2="21" y2="10"/>
                                     </svg>
-                                    ${formatDate(item.date)}
+                                    ${formatDate(item.data_encontro)}
                                 </span>
                             </div>
                         </div>
@@ -364,8 +414,19 @@ const Pages = (() => {
             },
         ];
 
-        // ✅ Chamada direta — sem DOMContentLoaded
-        initItemsPage(_DEMO_ITEMS);
+        // ✅ Buscar dados do backend
+        async function loadItems() {
+            try {
+                const response = await fetch(`${CONFIG.API_URL}/items`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const items = await response.json();
+                initItemsPage(items);
+            } catch (error) {
+                console.error('Erro ao carregar items:', error);
+            }
+        }
+
+        loadItems();
 
     } // fim visualizar
 

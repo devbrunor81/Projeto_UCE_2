@@ -1,0 +1,126 @@
+<div class="container anunciar-page">
+    <h1>Anunciar Item</h1>
+    
+    <form id="anunciar-form" class="form-anuncio">
+        <div class="form-group">
+            <label for="nome">Nome do Item *</label>
+            <input 
+                type="text" 
+                id="nome" 
+                name="nome" 
+                placeholder="Ex: Carteira preta de couro"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="descricao">Descrição</label>
+            <textarea 
+                id="descricao" 
+                name="descricao" 
+                placeholder="Detalhes adicionais sobre o item..."
+                rows="4"
+            ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="data_encontro">Data *</label>
+            <input 
+                type="date" 
+                id="data_encontro" 
+                name="data_encontro" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="retirado">
+                <input 
+                    type="checkbox" 
+                    id="retirado" 
+                    name="retirado"
+                >
+                Item já foi retirado/encontrado?
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Anunciar Item</button>
+    </form>
+
+    <div id="mensagem" style="margin-top: 20px; display: none;"></div>
+</div>
+
+<style>
+    .anunciar-page {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .form-anuncio {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    .form-group input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+
+    #mensagem {
+        padding: 12px;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    #mensagem.sucesso {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    #mensagem.erro {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
