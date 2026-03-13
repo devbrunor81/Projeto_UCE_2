@@ -11,6 +11,8 @@ import uuid
 
 router = APIRouter(tags=["items_crud"])
 
+
+#Criando diretorio das imagens
 IMAGES_DIR = "./Images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
@@ -59,6 +61,7 @@ async def add_item(
             shutil.copyfileobj(imagem.file, buffer)
 
         imagem_db = ImagemItem(
+            path=f"{nome_arquivo}",
             item_id=novo_item.id
         )
 
@@ -69,7 +72,7 @@ async def add_item(
 
     return {
         "item_id": novo_item.id,
-        "imagens_id": [img.id for img in imagens_db]
+        "imagens": [img.path for img in imagens_db]
     }
 
 
