@@ -50,7 +50,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  pgadmin_data:

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from Routers import items_crud
 from Database.database import engine, Base
-from Database.models import items
+from Database.models import items, users
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
