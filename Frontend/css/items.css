@@ -2,47 +2,38 @@
 
 /* ── Cabeçalho da página ── */
 .items-header {
-  padding: 24px 20px 8px;
+  padding: 20px 20px 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.items-header__title {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -.5px;
-  line-height: 1.1;
-}
-
-.items-header__title span {
-  color: var(--clr-accent);
-}
-
-
+/* Count como texto simples — sem aparência de botão */
 .items-header__count {
-  font-size: .75rem;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: .82rem;
+  font-weight: 700;
   color: var(--clr-muted);
-  background: var(--clr-surface);
-  border: 1px solid var(--clr-border);
-  border-radius: 99px;
-  padding: 4px 12px;
   white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
-/* ── Filtros ── */
+/* ── Filtros (agora inline com o count) ── */
 .items-filters {
   display: flex;
-  gap: 8px;
-  padding: 8px 20px 16px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  flex: 1;
 }
 .items-filters::-webkit-scrollbar { display: none; }
+.items-filters.has-overflow {
+  mask-image: linear-gradient(to right, black calc(100% - 36px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 36px), transparent 100%);
+}
 
 .filter-btn {
   flex-shrink: 0;
@@ -51,9 +42,9 @@
   border-radius: 99px;
   color: var(--clr-muted);
   font-family: var(--font-body);
-  font-size: .8rem;
+  font-size: .78rem;
   font-weight: 500;
-  padding: 6px 16px;
+  padding: 5px 14px;
   cursor: pointer;
   transition: background .18s, color .18s, border-color .18s;
   outline-offset: 3px;
@@ -125,13 +116,13 @@
 }
 
 .item-card__badge--lost {
-  background: rgba(220,38,38,.1);
+  background: rgba(220,38,38);
   color: var(--clr-lost);
   border: 1px solid rgba(220,38,38,.25);
 }
 
 .item-card__badge--found {
-  background: rgba(22,163,74,.1);
+  background: rgba(22,163,74);
   color: var(--clr-found);
   border: 1px solid rgba(22,163,74,.25);
 }
@@ -399,12 +390,16 @@
 .items-categories {
   display: flex;
   gap: 8px;
-  padding: 0 20px 12px;
+  padding: 12px 20px 12px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 .items-categories::-webkit-scrollbar { display: none; }
+.items-categories.has-overflow {
+  mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
+}
 
 .category-btn {
   flex-shrink: 0;

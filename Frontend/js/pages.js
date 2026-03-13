@@ -168,16 +168,17 @@ const Pages = (() => {
             /* ─── Renderização ─── */
 
             const CATEGORY_LABELS = {
-                acessorio: { label: 'Acessório',     icon: '👜' },
-                eletronico: { label: 'Eletrônico',   icon: '📱' },
-                documento:  { label: 'Documento',    icon: '📄' },
-                roupa:      { label: 'Roupa/Calçado',icon: '👕' },
-                outros:     { label: 'Outros',       icon: '📦' },
+                acessorio:  { label: 'Acessório',      icon: '👜' },
+                eletronico: { label: 'Eletrônico',     icon: '📱' },
+                documento:  { label: 'Documento',      icon: '📄' },
+                roupa:      { label: 'Roupa/Calçado',  icon: '👕' },
+                outros:     { label: 'Outros',         icon: '📦' },
             };
 
             function renderCard(item) {
-                const statusLabel = item.status === 'found' ? 'Achado' : 'Perdido';
-                const statusClass = item.status === 'found' ? 'found' : 'lost';
+                // status: 1 = Devolvido | 0 = Perdido
+                const statusLabel = item.status === 1 ? 'Devolvido' : 'Perdido';
+                const statusClass = item.status === 1 ? 'found' : 'lost';
                 const cat = item.category && CATEGORY_LABELS[item.category]
                     ? CATEGORY_LABELS[item.category]
                     : null;
@@ -220,13 +221,19 @@ const Pages = (() => {
             }
 
             function applyFilters() {
-                let filtered = items;
+                let filtered = [...items];
 
+                // currentFilter: 'all' | 0 (perdido) | 1 (devolvido)
                 if (currentFilter !== 'all')
                     filtered = filtered.filter(i => i.status === currentFilter);
 
                 if (currentCategory !== 'all')
                     filtered = filtered.filter(i => i.category === currentCategory);
+
+                // Na visualização "Todos": perdidos (0) primeiro, devolvidos (1) depois
+                if (currentFilter === 'all') {
+                    filtered.sort((a, b) => a.status - b.status);
+                }
 
                 countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'item' : 'itens'}`;
 
@@ -252,7 +259,8 @@ const Pages = (() => {
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
+                    const val = btn.dataset.filter;
+                    currentFilter = val === 'all' ? 'all' : parseInt(val, 10);
                     applyFilters();
                 });
             });
@@ -268,14 +276,31 @@ const Pages = (() => {
                 });
             });
 
+            /* ─── Fade de scroll ─── */
+
+            function bindScrollFade(el) {
+                function update() {
+                    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+                    el.classList.toggle('has-overflow', el.scrollWidth > el.clientWidth && !atEnd);
+                }
+                const ro = new ResizeObserver(update);
+                ro.observe(el);
+                el.addEventListener('scroll', update, { passive: true });
+                // fontes async (Syne, DM Sans) alargam os botões após o layout inicial
+                document.fonts.ready.then(update);
+            }
+
             /* ─── Init ─── */
             applyFilters();
+            bindScrollFade(document.querySelector('.items-filters'));
+            bindScrollFade(document.querySelector('.items-categories'));
 
         } // fim initItemsPage
 
         const _DEMO_ITEMS = [
+            // status: 0 = perdido | 1 = devolvido
             {
-                id: 1, status: 'lost', category: 'acessorio',
+                id: 1, status: 0, category: 'acessorio',
                 title: 'Carteira preta couro',
                 desc: 'Carteira masculina de couro preta, perdida próximo ao bloco D na quinta-feira. Contém documentos.',
                 images: [
@@ -285,7 +310,7 @@ const Pages = (() => {
                 date: '2025-03-07',
             },
             {
-                id: 2, status: 'found', category: 'acessorio',
+                id: 2, status: 1, category: 'acessorio',
                 title: 'Óculos de grau roxo',
                 desc: 'Encontrado na biblioteca, armação roxa com lentes de grau. Está na secretaria aguardando o dono.',
                 images: [
@@ -295,7 +320,7 @@ const Pages = (() => {
                 date: '2025-03-08',
             },
             {
-                id: 3, status: 'lost', category: 'outros',
+                id: 3, status: 0, category: 'outros',
                 title: 'Chave com chaveiro de gatinho',
                 desc: 'Molho de chaves com chaveiro de gato laranja. Perdido na quinta-feira. Procure a coordenação.',
                 images: [
@@ -305,7 +330,7 @@ const Pages = (() => {
                 date: '2025-03-06',
             },
             {
-                id: 4, status: 'found', category: 'outros',
+                id: 4, status: 1, category: 'outros',
                 title: 'Guarda-chuva azul marinho',
                 desc: 'Achado no corredor do laboratório de informática após a aula de quinta. Grande, cabo preto.',
                 images: [
@@ -315,7 +340,7 @@ const Pages = (() => {
                 date: '2025-03-09',
             },
             {
-                id: 5, status: 'lost', category: 'eletronico',
+                id: 5, status: 0, category: 'eletronico',
                 title: 'Celular Samsung preto',
                 desc: 'Smartphone Samsung Galaxy preto, perdido na cantina na segunda-feira. Tela com case transparente.',
                 images: [
@@ -325,7 +350,7 @@ const Pages = (() => {
                 date: '2025-03-05',
             },
             {
-                id: 6, status: 'found', category: 'eletronico',
+                id: 6, status: 1, category: 'eletronico',
                 title: 'Notebook prata',
                 desc: 'Notebook prata encontrado na sala 204 após aula de cálculo. Está na coordenação do curso.',
                 images: [
@@ -335,7 +360,7 @@ const Pages = (() => {
                 date: '2025-03-08',
             },
             {
-                id: 7, status: 'lost', category: 'documento',
+                id: 7, status: 0, category: 'documento',
                 title: 'Carteira de estudante UFPB',
                 desc: 'Carteira de estudante perdida próximo ao RU na terça. Nome: João Silva, matrícula 20220012345.',
                 images: [
@@ -344,9 +369,9 @@ const Pages = (() => {
                 date: '2025-03-04',
             },
             {
-                id: 8, status: 'lost', category: 'roupa',
+                id: 8, status: 0, category: 'roupa',
                 title: 'Tênis Puma branco nº 42',
-                desc: 'TênisPuma branco tamanho 42, esquecido no vestiário do ginásio na quarta-feira.',
+                desc: 'Tênis Puma branco tamanho 42, esquecido no vestiário do ginásio na quarta-feira.',
                 images: [
                     'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80',
                     'https://images.tcdn.com.br/img/img_prod/1247978/tenis_puma_masculino_court_classic_clean_40444001_branco_20951_1_534fec29afe4ef40fed1af7a77998c92.jpg'
@@ -354,7 +379,7 @@ const Pages = (() => {
                 date: '2025-03-06',
             },
             {
-                id: 9, status: 'found', category: 'roupa',
+                id: 9, status: 1, category: 'roupa',
                 title: 'Moletom cinza universitário',
                 desc: 'Moletom cinza com capuz encontrado na biblioteca. Sem identificação. Retirar na secretaria.',
                 images: [
