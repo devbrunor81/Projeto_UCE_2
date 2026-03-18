@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
@@ -47,27 +48,44 @@ async def add_item(
 
         db.add(novo_item)
 
-        # Envia informações do item para o banco sem fazer o commit definitivo
+        # Gera um ID para o item no banco sem fazer o commit definitivo
         await db.flush()
 
         imagens_db = []
 
-        # Salvar imagens
+        # Validando e salvando as imagens
         for imagem in imagens:
             if not imagem.filename:
                 continue
 
+            # Validar MIME
             if not imagem.content_type.startswith("image/"):
                 raise HTTPException(400, "Arquivo inválido")
 
-            extensao = imagem.filename.split(".")[-1]
+            # Validar extensão
+            extensao = imagem.filename.split(".")[-1].lower()
+
+            if extensao not in ["jpg", "jpeg", "png", "webp"]:
+                raise HTTPException(400, "Formato de arquivo inválido")
+
+            # Validar conteúdo real da imagem (PIL)
+            try:
+                Image.open(imagem.file)
+                imagem.file.seek(0)
+            except UnidentifiedImageError:
+                raise HTTPException(400, "Arquivo não é uma imagem válida")
+
+
+            # Gerando arquivo para ser salvo
             nome_arquivo = f"{uuid.uuid4()}.{extensao}"
 
             caminho = os.path.join(IMAGES_DIR, nome_arquivo)
 
+            # Salvando arquivo na pasta
             with open(caminho, "wb") as buffer:
                 shutil.copyfileobj(imagem.file, buffer)
 
+            # Salvando arquivo no banco de dados
             imagem_db = ImagemItem(
                 path=nome_arquivo,
                 item_id=novo_item.id
@@ -192,17 +210,34 @@ async def update_item(
             if not imagem.filename:
                 continue
 
+            # Validar MIME
             if not imagem.content_type.startswith("image/"):
-                raise HTTPException(status_code=400, detail="Arquivo inválido")
+                raise HTTPException(400, "Arquivo inválido")
 
-            extensao = imagem.filename.split(".")[-1]
+            # Validar extensão
+            extensao = imagem.filename.split(".")[-1].lower()
+
+            if extensao not in ["jpg", "jpeg", "png", "webp"]:
+                raise HTTPException(400, "Formato de arquivo inválido")
+
+            # Validar conteúdo real da imagem (PIL)
+            try:
+                Image.open(imagem.file)
+                imagem.file.seek(0)
+            except UnidentifiedImageError:
+                raise HTTPException(400, "Arquivo não é uma imagem válida")
+
+
+            # Gerando arquivo para ser salvo
             nome_arquivo = f"{uuid.uuid4()}.{extensao}"
 
             caminho = os.path.join(IMAGES_DIR, nome_arquivo)
 
+            # Salvando arquivo na pasta
             with open(caminho, "wb") as buffer:
                 shutil.copyfileobj(imagem.file, buffer)
 
+            # Salvando arquivo no banco de dados
             nova_imagem = ImagemItem(
                 path=nome_arquivo,
                 item_id=item.id
