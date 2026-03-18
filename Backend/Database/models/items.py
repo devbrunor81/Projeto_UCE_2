@@ -25,7 +25,7 @@ class Item(Base):
 
     tipo_resgatante = Column(String, nullable=True)
 
-    imagens = relationship("ImagemItem", back_populates="item")
+    imagens = relationship("ImagemItem", back_populates="item", cascade="all, delete-orphan")
 
 
 class ImagemItem(Base):
