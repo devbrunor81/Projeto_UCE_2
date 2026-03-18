@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from Utils.validation_image import validation_images
 from PIL import Image, UnidentifiedImageError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
@@ -51,30 +52,15 @@ async def add_item(
         # Gera um ID para o item no banco sem fazer o commit definitivo
         await db.flush()
 
+
+        #Lista de imagens que serao adicionadas ao banco
         imagens_db = []
 
-        # Validando e salvando as imagens
-        for imagem in imagens:
-            if not imagem.filename:
-                continue
+        # Validando as imagens recebidas
+        imagens_validas = validation_images(imagens)
 
-            # Validar MIME
-            if not imagem.content_type.startswith("image/"):
-                raise HTTPException(400, "Arquivo inválido")
-
-            # Validar extensão
-            extensao = imagem.filename.split(".")[-1].lower()
-
-            if extensao not in ["jpg", "jpeg", "png", "webp"]:
-                raise HTTPException(400, "Formato de arquivo inválido")
-
-            # Validar conteúdo real da imagem (PIL)
-            try:
-                Image.open(imagem.file)
-                imagem.file.seek(0)
-            except UnidentifiedImageError:
-                raise HTTPException(400, "Arquivo não é uma imagem válida")
-
+        # Salvando as imagens validas (pasta de imagens + referências no banco)
+        for img, extensao in imagens_validas:
 
             # Gerando arquivo para ser salvo
             nome_arquivo = f"{uuid.uuid4()}.{extensao}"
@@ -83,7 +69,7 @@ async def add_item(
 
             # Salvando arquivo na pasta
             with open(caminho, "wb") as buffer:
-                shutil.copyfileobj(imagem.file, buffer)
+                shutil.copyfileobj(img.file, buffer)
 
             # Salvando arquivo no banco de dados
             imagem_db = ImagemItem(
@@ -203,30 +189,11 @@ async def update_item(
     # SUBSTITUINDO AS IMAGENS
     if imagens is not None:
 
-        novas_imagens = []
+        # 1. Validando as imagens novas
+        imagens_validas = validation_images(imagens)
 
-        # 1. Salvar imagens novas (pasta de imagens + referências no banco)
-        for imagem in imagens:
-            if not imagem.filename:
-                continue
-
-            # Validar MIME
-            if not imagem.content_type.startswith("image/"):
-                raise HTTPException(400, "Arquivo inválido")
-
-            # Validar extensão
-            extensao = imagem.filename.split(".")[-1].lower()
-
-            if extensao not in ["jpg", "jpeg", "png", "webp"]:
-                raise HTTPException(400, "Formato de arquivo inválido")
-
-            # Validar conteúdo real da imagem (PIL)
-            try:
-                Image.open(imagem.file)
-                imagem.file.seek(0)
-            except UnidentifiedImageError:
-                raise HTTPException(400, "Arquivo não é uma imagem válida")
-
+        # 2. Salvando as imagens validas (pasta de imagens + referências no banco)
+        for img, extensao in imagens_validas:
 
             # Gerando arquivo para ser salvo
             nome_arquivo = f"{uuid.uuid4()}.{extensao}"
@@ -235,7 +202,7 @@ async def update_item(
 
             # Salvando arquivo na pasta
             with open(caminho, "wb") as buffer:
-                shutil.copyfileobj(imagem.file, buffer)
+                shutil.copyfileobj(img.file, buffer)
 
             # Salvando arquivo no banco de dados
             nova_imagem = ImagemItem(
@@ -244,9 +211,9 @@ async def update_item(
             )
 
             db.add(nova_imagem)
-            novas_imagens.append(nova_imagem)
 
-        # 2. Remover imagens antigas (pasta de imagens + referências no banco)
+
+        # 2. Removendo as imagens antigas (pasta de imagens + referências no banco)
         for img in item.imagens:
             caminho = os.path.join(IMAGES_DIR, img.path)
 
@@ -255,7 +222,7 @@ async def update_item(
 
             await db.delete(img)
 
-    # Salvando alterações
+    # Salvando alterações no Banco
     await db.commit()
     await db.refresh(item)
 
