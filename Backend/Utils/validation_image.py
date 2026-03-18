@@ -15,7 +15,7 @@ def validation_images(imagens: List[UploadFile]) -> List[Tuple[UploadFile, str]]
 
         # Validar MIME
         if not imagem.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail=f'Arquivo "{imagem.filename}"" inválido')
+            raise HTTPException(status_code=400, detail=f'Arquivo "{imagem.filename}" inválido')
 
         # Validar extensão
         extensao = imagem.filename.split(".")[-1].lower()
