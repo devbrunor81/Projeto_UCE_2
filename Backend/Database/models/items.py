@@ -19,11 +19,15 @@ class Item(Base):
 
     devolvido = Column(Boolean, default=False)
 
+    data_devolucao = Column(Date, nullable=True)
+
     nome_resgatante = Column(String, nullable=True)
 
     telefone_resgatante = Column(String, nullable=True)
 
     tipo_resgatante = Column(String, nullable=True)
+
+    ativo = Column(Boolean, default=True)
 
     imagens = relationship("ImagemItem", back_populates="item", cascade="all, delete-orphan")
 

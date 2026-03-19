@@ -4,3 +4,4 @@ sqlalchemy==2.0.48
 asyncpg==0.31.0
 python-multipart==0.0.22
 pillow==12.1.1
+apscheduler==3.11.2

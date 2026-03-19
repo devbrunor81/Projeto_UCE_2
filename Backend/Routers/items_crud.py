@@ -38,55 +38,60 @@ async def add_item(
     db: AsyncSession = Depends(get_db)
 ):
 
-        # Criar item
-        novo_item = Item(
-            nome=nome,
-            categoria=categoria.lower(),
-            data_encontro=data_encontro,
-            local_encontro=local_encontro,
-            descricao=descricao
+    data_hoje = date.today()
+
+    if data_encontro > data_hoje:
+        raise HTTPException(status_code=400, detail="Data de encontro está maior que o dia atual.")
+
+    # Criar item
+    novo_item = Item(
+        nome=nome,
+        categoria=categoria.lower(),
+        data_encontro=data_encontro,
+        local_encontro=local_encontro,
+        descricao=descricao
+    )
+
+    db.add(novo_item)
+
+    # Gera um ID para o item no banco sem fazer o commit definitivo
+    await db.flush()
+
+
+    #Lista de imagens que serao adicionadas ao banco
+    imagens_db = []
+
+    # Validando as imagens recebidas
+    imagens_validas = validation_images(imagens)
+
+    # Salvando as imagens validas (pasta de imagens + referências no banco)
+    for img, extensao in imagens_validas:
+
+        # Gerando arquivo para ser salvo
+        nome_arquivo = f"{uuid.uuid4()}.{extensao}"
+
+        caminho = os.path.join(IMAGES_DIR, nome_arquivo)
+
+        # Salvando arquivo na pasta
+        with open(caminho, "wb") as buffer:
+            shutil.copyfileobj(img.file, buffer)
+
+        # Salvando arquivo no banco de dados
+        imagem_db = ImagemItem(
+            path=nome_arquivo,
+            item_id=novo_item.id
         )
 
-        db.add(novo_item)
+        db.add(imagem_db)
+        imagens_db.append(imagem_db)
 
-        # Gera um ID para o item no banco sem fazer o commit definitivo
-        await db.flush()
+    # Commit único para as tabelas de items e images_items
+    await db.commit()
 
-
-        #Lista de imagens que serao adicionadas ao banco
-        imagens_db = []
-
-        # Validando as imagens recebidas
-        imagens_validas = validation_images(imagens)
-
-        # Salvando as imagens validas (pasta de imagens + referências no banco)
-        for img, extensao in imagens_validas:
-
-            # Gerando arquivo para ser salvo
-            nome_arquivo = f"{uuid.uuid4()}.{extensao}"
-
-            caminho = os.path.join(IMAGES_DIR, nome_arquivo)
-
-            # Salvando arquivo na pasta
-            with open(caminho, "wb") as buffer:
-                shutil.copyfileobj(img.file, buffer)
-
-            # Salvando arquivo no banco de dados
-            imagem_db = ImagemItem(
-                path=nome_arquivo,
-                item_id=novo_item.id
-            )
-
-            db.add(imagem_db)
-            imagens_db.append(imagem_db)
-
-        # Commit único para as tabelas de items e images_items
-        await db.commit()
-
-        return {
-            "item_id": novo_item.id,
-            "imagens": [img.path for img in imagens_db]
-        }
+    return {
+        "item_id": novo_item.id,
+        "imagens": [img.path for img in imagens_db]
+    }
 
 
 
@@ -100,7 +105,7 @@ async def list_itens(
 ):
     
     # Para buscar item + imagens (ordenados pelos mais recentes)
-    query = (select(Item).options(selectinload(Item.imagens)).order_by(desc(Item.data_encontro), desc(Item.id)))
+    query = (select(Item).options(selectinload(Item.imagens)).where(Item.ativo == True).order_by(desc(Item.data_encontro), desc(Item.id)))
 
     # Filtro por status do item (Todos, Perdidos, Devolvidos)
     if status == "perdidos":
@@ -130,9 +135,11 @@ async def list_itens(
             "local_encontro" : item.local_encontro,
             "descricao" : item.descricao,
             "devolvido": item.devolvido,
+            "data_devolucao": item.data_devolucao,
             "nome_resgatante" : item.nome_resgatante,
             "telefone_resgatante" : item.telefone_resgatante,
             "tipo_resgatante" : item.tipo_resgatante,
+            "ativo" : item.ativo,
             "imagens": [img.path for img in item.imagens]
 
         } for item in itens
@@ -149,7 +156,7 @@ async def update_item(
     data_encontro: Optional[date] = Form(None),
     local_encontro: Optional[str] = Form(None),
     descricao: Optional[str] = Form(None),
-    devolvido: Optional[bool] = Form(None),
+    data_devolucao: Optional[date] = Form(None),
     nome_resgatante: Optional[str] = Form(None),
     telefone_resgatante: Optional[str] = Form(None),
     tipo_resgatante: Optional[str] = Form(None),
@@ -157,15 +164,51 @@ async def update_item(
     db: AsyncSession = Depends(get_db)
 ):
     
+    data_hoje = date.today()
+
+    if data_encontro is not None and data_encontro > data_hoje:
+        raise HTTPException(status_code=400, detail="Data de encontro não pode ser posterior ao dia atual.")
+    
+    if data_devolucao is not None and data_devolucao > data_hoje:
+        raise HTTPException(status_code=400, detail="Data de devolucao não pode ser posterior ao dia atual.")
+    
     # Buscar item + imagens
     query = select(Item).options(selectinload(Item.imagens)).where(Item.id == item_id)
     result = await db.execute(query)
     item = result.scalar_one_or_none()
-
     if not item:
         raise HTTPException(status_code=404, detail="Item não encontrado")
 
-    # Atualizar apenas campos enviados na requisição
+
+    # Valores finais das datas dependendo se o usuario enviou um novo valor ou nao
+    final_data_encontro = data_encontro if data_encontro is not None else item.data_encontro
+    final_data_devolucao = data_devolucao if data_devolucao is not None else item.data_devolucao
+
+    # relação de coerencia entre as datas:
+    if final_data_devolucao and final_data_devolucao < final_data_encontro:
+            raise HTTPException(status_code=400, detail="Data de devolução não pode ser anterior à data de encontro.")
+
+
+    #Relação de coerencia para devolucao de item:
+    final_nome_resgatante = nome_resgatante if nome_resgatante is not None else item.nome_resgatante
+    final_telefone_resgatante = telefone_resgatante if telefone_resgatante is not None else item.telefone_resgatante
+    final_tipo_resgatante = tipo_resgatante if tipo_resgatante is not None else item.tipo_resgatante
+
+    campos_resgate = [
+        final_data_devolucao,
+        final_nome_resgatante,
+        final_telefone_resgatante,
+        final_tipo_resgatante
+    ]
+
+    if any(campos_resgate) and not all(campos_resgate):
+        raise HTTPException(
+            400,
+            "Todos os dados de devolução devem estar presentes."
+        )
+
+
+    # Aplica a atualizacao dos campos
     if nome is not None:
         item.nome = nome
     if categoria is not None:
@@ -176,14 +219,17 @@ async def update_item(
         item.local_encontro = local_encontro
     if descricao is not None:
         item.descricao = descricao
-    if devolvido is not None:
-        item.devolvido = devolvido
+    if data_devolucao is not None:
+        item.data_devolucao = data_devolucao
     if nome_resgatante is not None:
         item.nome_resgatante = nome_resgatante
     if telefone_resgatante is not None:
         item.telefone_resgatante = telefone_resgatante
     if tipo_resgatante is not None:
         item.tipo_resgatante = tipo_resgatante
+    
+    item.devolvido = all(campos_resgate)
+
 
 
     # SUBSTITUINDO AS IMAGENS
