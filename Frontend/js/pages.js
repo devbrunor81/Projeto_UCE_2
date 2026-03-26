@@ -1,8 +1,42 @@
 const Pages = (() => {
 
     function login() {
+        const loginForm = document.getElementById('loginForm');
+        
+        // garante que o formulário existe na tela antes de adicionar o evento
+        if (!loginForm) return;
 
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const response = await fetch('http://localhost:8000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email, senha: senha })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    localStorage.setItem('token', data.access_token);
+                    
+                    window.location.hash = '#/anunciar'; 
+                } else {
+                    alert('Email ou senha incorretos!');
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                alert('Erro de conexão com o servidor.');
+            }
+        });
     }
+
 
     function anunciar() {
 
