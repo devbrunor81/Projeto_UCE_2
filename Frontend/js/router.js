@@ -12,7 +12,9 @@ const Router = (() =>{
         '/anunciar':{
             template: 'pages/anunciar.html',
             init: ()=> Pages?.anunciar?.(),
-            guard: () => Auth.requireAuth()
+            guard: null,
+            //guard: () => Auth.requireAuth()
+            //MUDAR QUANDO CRIAR LOGICA DE LOGIN
         },
         '/visualizar':{
             template: 'pages/visualizar.html',

@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="../css/items.css">
+
+<header class="topbar">
+  <img
+    class="topbar__logo"
+    src="https://www.ccsa.ufpb.br/ufpb/contents/noticias/nota-de-repudio/logo-ufpb.png/@@images/6ab839bc-0d0c-4f09-8325-698542f409fe.png"
+    alt="Logo UFPB"
+    onerror="this.style.display='none'"
+  >
+  <div class="topbar__name">
+    UFPB
+    <span>Achados &amp; Perdidos</span>
+  </div>
+</header>
+
+<div class="form-container">
+
+   <div class="form-card">
+
+      <h2>Cadastrar Item</h2>
+
+      <!-- Campos TEXTO -->
+      <div class="form-group">
+         <label>Nome do item:</label>
+         <input type="text" class="form-input">
+      </div>
+
+      <div class="form-group">
+         <label>Local de encontro:</label>
+         <input type="text" class="form-input">
+      </div>
+
+      <div class="form-group">
+         <label>Descrição:</label>
+         <input type="text" class="form-input">
+      </div>
+
+      <div class="form-group">
+         <label>Categoria</label>
+
+         <select class="form-input">
+            <option value="">Selecione</option>
+            <option>Acessório</option>
+            <option>Eletrônico</option>
+            <option>Documento</option>
+            <option>Roupa/Calçado</option>
+            <option>Outros</option>
+         </select>
+      </div>
+
+      <!-- Campo DATA -->
+      <div class="form-group">
+         <label>Data de encontro</label>
+         <input type="date" class="form-input">
+      </div>
+
+      <!-- Campo FOTO -->
+      <div class="form-group">
+         <label>Foto do item</label>
+
+         <input type="file" id="fotoInput" accept="image/*">
+
+         <img id="previewFoto" class="foto-preview" />
+      </div>
+
+      <button class="primary-btn">Cadastrar</button>
+
+   </div>
+
+</div>
