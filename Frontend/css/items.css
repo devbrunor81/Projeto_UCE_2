@@ -314,6 +314,50 @@
   background: rgba(245,200,66,.2);
 }
 
+/* ── Botões de ação do card (editar / remover) ── */
+.item-card__actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+
+.item-card__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: .75rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface);
+  color: var(--clr-muted);
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+
+.item-card__btn--edit {
+  background: #eef2ff;
+  color: var(--clr-accent);
+  border-color: #c7d2fe;
+}
+
+.item-card__btn--edit:hover {
+  background: #dce6ff;
+}
+
+.item-card__btn--remove {
+  background: #fff1f1;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.item-card__btn--remove:hover {
+  background: #ffe0e0;
+}
 /* ── Lightbox ── */
 .lightbox {
   position: fixed;
@@ -451,4 +495,51 @@
   padding: 3px 9px;
   margin-bottom: 2px;
   align-self: flex-start;
+}
+
+/* ── Topbar: botões de ação ── */
+.topbar__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__btn {
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .18s, color .18s;
+  white-space: nowrap;
+}
+
+.topbar__btn--primary {
+  background: var(--clr-accent2);
+  color: #fff;
+}
+
+.topbar__btn--primary:hover {
+  background: #15803d;;
+}
+
+.topbar__btn--ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.4);
+}
+
+.topbar__btn--ghost:hover {
+  background: rgba(255,255,255,.12);
+}
+
+@media (max-width: 480px) {
+  .topbar__btn {
+    font-size: .72rem;
+    padding: 5px 10px;
+  }
 }

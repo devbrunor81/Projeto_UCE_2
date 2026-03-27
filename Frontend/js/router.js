@@ -12,9 +12,7 @@ const Router = (() =>{
         '/anunciar':{
             template: 'pages/anunciar.html',
             init: ()=> Pages?.anunciar?.(),
-            guard: null,
-            //guard: () => Auth.requireAuth()
-            //MUDAR QUANDO CRIAR LOGICA DE LOGIN
+            guard: () => Auth.requireAuth()
         },
         '/visualizar':{
             template: 'pages/visualizar.html',
@@ -66,7 +64,7 @@ const Router = (() =>{
 
     //------------ Navegação -------------
     function navigate(path){
-        window.location.href = path;
+        window.location.hash = path;
     }
 
     //------------- Inicializa -------------

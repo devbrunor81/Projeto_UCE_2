@@ -24,9 +24,11 @@ const Pages = (() => {
                 if (response.ok) {
                     const data = await response.json();
                     
-                    localStorage.setItem('token', data.access_token);
-                    
-                    window.location.hash = '#/anunciar'; 
+                    Auth.setToken(data.access_token)
+                    Topbar.refresh();
+                    CardActions.refresh()
+
+                    Router.navigate('/visualizar'); 
                 } else {
                     alert('Email ou senha incorretos!');
                 }
@@ -210,12 +212,13 @@ const Pages = (() => {
             };
 
             function renderCard(item) {
-                // status: 1 = Devolvido | 0 = Perdido
                 const statusLabel = item.status === 1 ? 'Devolvido' : 'Perdido';
                 const statusClass = item.status === 1 ? 'found' : 'lost';
                 const cat = item.category && CATEGORY_LABELS[item.category]
                     ? CATEGORY_LABELS[item.category]
                     : null;
+
+                const adminActions = CardActions.render(item.id); // ← só isso, sem a linha do authed
 
                 return `
                     <article class="item-card" role="listitem" data-status="${item.status}" data-id="${item.id}">
@@ -238,6 +241,7 @@ const Pages = (() => {
                                     ${formatDate(item.date)}
                                 </span>
                             </div>
+                            ${adminActions}
                         </div>
                     </article>`;
             }
@@ -285,6 +289,14 @@ const Pages = (() => {
 
                 // Bind carrosséis
                 grid.querySelectorAll('.carousel').forEach(bindCarousel);
+
+                CardActions.bind(grid, {
+                    onEdit:   (id) => { window.location.hash = `#/anunciar?id=${id}`; },
+                    onRemove: (id) => {
+                        const idx = items.findIndex(i => i.id === id);
+                        if (idx !== -1) { items.splice(idx, 1); applyFilters(); }
+                    }
+                });
             }
 
             /* ─── Filtros de status ─── */
@@ -323,11 +335,12 @@ const Pages = (() => {
                 // fontes async (Syne, DM Sans) alargam os botões após o layout inicial
                 document.fonts.ready.then(update);
             }
-
+            
             /* ─── Init ─── */
             applyFilters();
             bindScrollFade(document.querySelector('.items-filters'));
             bindScrollFade(document.querySelector('.items-categories'));
+            Topbar.refresh()
 
         } // fim initItemsPage
 
@@ -423,8 +436,10 @@ const Pages = (() => {
             },
         ];
 
-        // ✅ Chamada direta — sem DOMContentLoaded
+
         initItemsPage(_DEMO_ITEMS);
+        Topbar.refresh();
+        CardActions.refresh()
 
     } // fim visualizar
 

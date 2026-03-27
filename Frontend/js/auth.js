@@ -8,17 +8,23 @@ const Auth = (()=>{
         //TO-DO
     }
 
-    // ---------- Verifica se o token está expirado ---------
-    function isTokenExpired(token){
-        //TO-DO
-        return false;
+    function isTokenExpired(token) {
+        return false; //quando o token retornado for valido, retirar a linha.
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            // payload.exp é o timestamp de expiração em segundos
+            // Date.now() retorna em milissegundos, por isso divide por 1000
+            return payload.exp < Date.now() / 1000;
+        } catch (e) {
+            // se o token for inválido/malformado, considera expirado
+            return true;
+        }
     }
 
     // --------- Verifica se usuario está autenticado ---------------
     function isAuthed() {
-        //const token = localStorage.getItem(TOKEN_KEY);
-        const token = 'token_Teste'
-        if(!token) return false
+        const token = localStorage.getItem(TOKEN_KEY);
+        if(!token) return false;
         if(isTokenExpired(token)){
             logout();
             return false;
@@ -32,7 +38,7 @@ const Auth = (()=>{
     // ------------ logout --------------------
     function logout(){
         localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY)
+        localStorage.removeItem(USER_KEY);
         Router.navigate('/visualizar');
     }
 
@@ -75,8 +81,14 @@ const Auth = (()=>{
         return true;
     }
 
+    // Função para salvar o token
+    function setToken(token, user = null) {
+        localStorage.setItem(TOKEN_KEY, token);
+        if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
 
-    return { login, logout, isAuthed, getToken, getUser, requireAuth, requireGuest };
+
+    return { login, logout, isAuthed, getToken, getUser, requireAuth, requireGuest, setToken };
 
 
-})
+})()

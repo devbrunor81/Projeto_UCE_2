@@ -14,7 +14,7 @@
   --clr-card:     #ffffff;
   --clr-border:   #e0e2ea;
   --clr-accent:   #2563eb;
-  --clr-accent2:  #f97316;
+  --clr-accent2:  #16a34a;
   --clr-text:     #1a1d27;
   --clr-muted:    #7b80a0;
   --clr-found:    #b6ffd1;
@@ -72,6 +72,12 @@ body {
   display: block;
   flex-shrink: 0;
   border-radius: 10px;
+}
+.topbar__btn--icon {
+  padding: 7px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .topbar__name {
@@ -147,10 +153,6 @@ body {
 .login-card button:hover {
    background: #002244;
 }
-
-
-
-
 
 .form-container {
    padding: 20px;
