@@ -41,7 +41,7 @@ const Topbar = (() => {
         if (authed) {
             return `
                 <a class="topbar__btn topbar__btn--primary" href="#/anunciar" aria-label="Criar novo anúncio">
-                    + Novo Anúncio
+                    + Novo Item
                 </a>
                 <button class="topbar__btn topbar__btn--ghost topbar__btn--icon" id="topbar-btn-logout" aria-label="Sair da conta">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
