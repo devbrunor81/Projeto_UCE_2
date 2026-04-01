@@ -343,6 +343,7 @@
   background: #eef2ff;
   color: var(--clr-accent);
   border-color: #c7d2fe;
+  flex: 1;
 }
 
 .item-card__btn--edit:hover {
@@ -353,11 +354,25 @@
   background: #fff1f1;
   color: #dc2626;
   border-color: #fca5a5;
+  margin-left: auto;
+  flex: 0;
 }
 
 .item-card__btn--remove:hover {
   background: #ffe0e0;
 }
+
+.item-card__btn--return {
+  background: #ecfdf5;
+  color: #16a34a;
+  border-color: #86efac;
+  flex: 1;
+}
+
+.item-card__btn--return:hover {
+  background: #d1fae5;
+}
+
 /* ── Lightbox ── */
 .lightbox {
   position: fixed;

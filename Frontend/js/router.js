@@ -18,6 +18,11 @@ const Router = (() =>{
             template: 'pages/visualizar.html',
             init: () => Pages?.visualizar?.(),
             guard:null
+        },
+        '/devolucao':{
+            template: 'pages/devolucao.html',
+            init: ()=> Pages?.devolucao?.(),
+            guard: () => Auth.requireAuth()
         }
     }
 

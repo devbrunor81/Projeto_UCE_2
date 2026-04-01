@@ -20,6 +20,11 @@ const CardActions = (() => {
             <path d="M10 11v6"/><path d="M14 11v6"/>
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>`;
+    const ICON_RETURN = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>`;
 
     // ─── API pública ──────────────────────────────────────────────
 
@@ -36,6 +41,12 @@ const CardActions = (() => {
         return `
             <div class="item-card__actions">
                 <button
+                    class="item-card__btn item-card__btn--return"
+                    data-id="${itemId}"
+                    aria-label="Devolver item">
+                    ${ICON_RETURN} Devolver
+                </button>
+                <button
                     class="item-card__btn item-card__btn--edit"
                     data-id="${itemId}"
                     aria-label="Alterar item">
@@ -45,7 +56,7 @@ const CardActions = (() => {
                     class="item-card__btn item-card__btn--remove"
                     data-id="${itemId}"
                     aria-label="Remover item">
-                    ${ICON_REMOVE} Remover
+                    ${ICON_REMOVE}
                 </button>
             </div>`;
     }
@@ -55,9 +66,9 @@ const CardActions = (() => {
      * Deve ser chamado após os cards serem inseridos no DOM.
      *
      * @param {Element} containerEl              - Elemento pai que contém os cards
-     * @param {{ onEdit: Function, onRemove: Function }} callbacks
+     * @param {{ onReturn: Function, nonEdit: Function, onRemove: Function }} callbacks
      */
-    function bind(containerEl, { onEdit, onRemove } = {}) {
+    function bind(containerEl, { onReturn, onEdit, onRemove } = {}) {
         containerEl.querySelectorAll('.item-card__btn--edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -71,6 +82,13 @@ const CardActions = (() => {
                 if (confirm('Remover este item?')) {
                     if (typeof onRemove === 'function') onRemove(id);
                 }
+            });
+        });
+
+        containerEl.querySelectorAll('.item-card__btn--return').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                if (typeof onReturn === 'function') onReturn(id);
             });
         });
     }

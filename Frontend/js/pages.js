@@ -292,6 +292,7 @@ const Pages = (() => {
 
                 CardActions.bind(grid, {
                     onEdit:   (id) => { window.location.hash = `#/anunciar?id=${id}`; },
+                    onReturn: (id) => { window.location.hash = `#/devolucao?id=${id}`;},
                     onRemove: (id) => {
                         const idx = items.findIndex(i => i.id === id);
                         if (idx !== -1) { items.splice(idx, 1); applyFilters(); }
@@ -443,10 +444,42 @@ const Pages = (() => {
 
     } // fim visualizar
 
+    function devolucao() {
+        const dataInput = document.getElementById("dataDevolucao");
+        const telInput = document.getElementById("telefone");
+
+        // se não estiver na página, sai
+        if (!dataInput || !telInput) return;
+
+        // auto preencher data
+        const hoje = new Date().toISOString().split("T")[0];
+        dataInput.value = hoje;
+
+        // máscara telefone
+        telInput.addEventListener("input", () => {
+            let v = telInput.value.replace(/\D/g, "");
+
+            if (v.length > 11) v = v.slice(0, 11);
+
+            if (v.length > 10) {
+                v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+            } else if (v.length > 6) {
+                v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+            } else if (v.length > 2) {
+                v = v.replace(/^(\d{2})(\d{0,5})/, "($1) $2");
+            } else {
+                v = v.replace(/^(\d*)/, "($1");
+            }
+
+            telInput.value = v;
+        });
+    }
+
     return {
         login,
         anunciar,
         visualizar,
+        devolucao,
     };
 
 })();
