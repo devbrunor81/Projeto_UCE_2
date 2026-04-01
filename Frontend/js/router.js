@@ -11,7 +11,7 @@ const Router = (() =>{
         },
         '/anunciar':{
             template: 'pages/anunciar.html',
-            init: ()=> Pages?.anunciar?.(),
+            init: () => Pages?.anunciar?.(),
             guard: () => Auth.requireAuth()
         },
         '/visualizar':{
@@ -21,7 +21,12 @@ const Router = (() =>{
         },
         '/devolucao':{
             template: 'pages/devolucao.html',
-            init: ()=> Pages?.devolucao?.(),
+            init: () => Pages?.devolucao?.(),
+            guard: () => Auth.requireAuth()
+        },
+        '/editar':{
+            template: 'pages/editar.html',
+            init: () => Pages?.editar?.(),
             guard: () => Auth.requireAuth()
         }
     }

@@ -298,7 +298,7 @@ const Pages = (() => {
                 grid.querySelectorAll('.carousel').forEach(bindCarousel);
 
                 CardActions.bind(grid, {
-                    onEdit:   (id) => { window.location.hash = `#/anunciar?id=${id}`; },
+                    onEdit:   (id) => { window.location.hash = `#/editar?id=${id}`; },
                     onReturn: (id) => { window.location.hash = `#/devolucao?id=${id}`;},
                     onRemove: (id) => {
                         const idx = items.findIndex(i => i.id === id);
