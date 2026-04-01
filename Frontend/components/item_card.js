@@ -35,17 +35,21 @@ const CardActions = (() => {
      * @param {number|string} itemId  - ID do item
      * @returns {string} HTML pronto para injetar no card
      */
-    function render(itemId) {
+    function render(itemId, options = {}) {
         if (!_isAuthed()) return '';
+
+        const { hideReturn } = options;
 
         return `
             <div class="item-card__actions">
+                ${!hideReturn ? `
                 <button
                     class="item-card__btn item-card__btn--return"
                     data-id="${itemId}"
                     aria-label="Devolver item">
                     ${ICON_RETURN} Devolver
                 </button>
+                ` : ''}
                 <button
                     class="item-card__btn item-card__btn--edit"
                     data-id="${itemId}"

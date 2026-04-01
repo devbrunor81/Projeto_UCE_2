@@ -225,7 +225,9 @@ const Pages = (() => {
                     ? CATEGORY_LABELS[item.category]
                     : null;
 
-                const adminActions = CardActions.render(item.id); // ← só isso, sem a linha do authed
+                const adminActions = item.status === 1 // ← só isso, sem a linha do authed
+                    ? CardActions.render(item.id, { hideReturn: true })
+                    : CardActions.render(item.id); 
 
                 return `
                     <article class="item-card" role="listitem" data-status="${item.status}" data-id="${item.id}">
