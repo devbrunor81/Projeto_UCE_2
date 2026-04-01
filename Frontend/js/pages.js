@@ -41,7 +41,14 @@ const Pages = (() => {
 
 
     function anunciar() {
+        const dataInput = document.getElementById("dataEncontro");
 
+        // se não estiver na página, sai
+        if (!dataInput) return;
+
+        // auto preencher data
+        const hoje = new Date().toISOString().split("T")[0];
+        dataInput.value = hoje;
     }
 
     function visualizar() {
