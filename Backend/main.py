@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from Utils.security import hash_senha
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,7 +22,7 @@ async def lifespan(app: FastAPI):
         user_exists = result.scalars().first()
         
         if not user_exists:
-            novo_usuario = users.User(username="admin", password="123123") #todo: implementar hash
+            novo_usuario = users.User(username="admin", password=hash_senha("123123"))
             session.add(novo_usuario)
             await session.commit()
     # Iniciar scheduler de soft_delete
@@ -39,7 +40,7 @@ app.add_middleware(
     CORSMiddleware,
     # É importante não ter a barra (/) no final do endereço!
     allow_origins=[
-        "http://localhost:8080", 
+        "http://localhost:8080",
         "http://127.0.0.1:8080" # Coloquei as duas formas por garantia
     ],
     allow_credentials=True,

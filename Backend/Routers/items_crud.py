@@ -12,6 +12,7 @@ from datetime import date
 import shutil
 import os
 import uuid
+from Utils.current_user import get_current_user
 
 router = APIRouter(tags=["items_crud"])
 
@@ -21,7 +22,10 @@ IMAGES_DIR = "./Images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
 
-router = APIRouter()
+router = APIRouter(
+    tags=["items_crud"],
+    dependencies=[Depends(get_current_user)]
+)
 
 
 FileSchema = Annotated[UploadFile, WithJsonSchema({"type": "string", "format": "binary"})]
@@ -144,6 +148,9 @@ async def list_itens(
 
         } for item in itens
     ]
+
+
+# GET BY ID
 
 
 

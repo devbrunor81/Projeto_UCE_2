@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
 from Database.database import get_db
-from Database.models.users import User 
+from Database.models.users import User
+from Utils.security import verificar_senha, criar_token
 
 router = APIRouter(tags=["autenticacao"])
 
@@ -17,15 +18,15 @@ async def login(dados: LoginData, db: AsyncSession = Depends(get_db)):
     result = await db.execute(query)
     usuario_db = result.scalar_one_or_none()
 
-    # Por enquanto estamos comparando texto puro, sem hash
-    if not usuario_db or usuario_db.password != dados.senha:
+    if not usuario_db or not verificar_senha(dados.senha, usuario_db.password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
+            status_code=401,
             detail="Usuário ou senha incorretos"
         )
 
+    token = criar_token({"sub": str(usuario_db.id)})
+
     return {
-        "mensagem": "Login realizado com sucesso",
-        "access_token": "token_falso_so_para_o_frontend_deixar_entrar", 
+        "access_token": token,
         "token_type": "bearer"
     }
