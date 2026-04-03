@@ -85,8 +85,6 @@ const Auth = (()=>{
     }
 
 
-    // Expor função global para debug
-    window.debugToken = debugToken;
 
     // Retornar o objeto Auth para uso global
     return {
