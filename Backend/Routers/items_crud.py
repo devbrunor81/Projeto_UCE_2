@@ -21,8 +21,11 @@ router = APIRouter(tags=["items_crud"])
 IMAGES_DIR = "./Images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
+public_router = APIRouter(
+    tags=["items_crud"]
+)
 
-router = APIRouter(
+private_router = APIRouter(
     tags=["items_crud"],
     dependencies=[Depends(get_current_user)]
 )
@@ -31,7 +34,7 @@ router = APIRouter(
 FileSchema = Annotated[UploadFile, WithJsonSchema({"type": "string", "format": "binary"})]
 
 #CREATE
-@router.post("/items")
+@private_router.post("/items")
 async def add_item(
     nome: str = Form(...),
     categoria: str = Form(...),
@@ -101,7 +104,7 @@ async def add_item(
 
 
 #READ
-@router.get("/items")
+@public_router.get("/items")
 async def list_itens(
     status: Literal["todos", "perdidos", "devolvidos"] = "todos",
     categoria:  Literal["todas", "acessorio", "eletronico", "documento", "roupas_calcados", "outros"] = "todas",
@@ -151,7 +154,7 @@ async def list_itens(
 
 
 # GET BY ID
-@router.get("/items/{item_id}")
+@public_router.get("/items/{item_id}")
 async def get_item_by_id(
     item_id: int,
     db: AsyncSession = Depends(get_db)
@@ -183,7 +186,7 @@ async def get_item_by_id(
 
 
 # UPDATE
-@router.put("/items/{item_id}")
+@private_router.put("/items/{item_id}")
 async def update_item(
     item_id: int,
     nome: Optional[str] = Form(None),
@@ -314,7 +317,7 @@ async def update_item(
 
 
 #DELETE
-@router.delete("/items/{item_id}")
+@private_router.delete("/items/{item_id}")
 async def delete_item(
     item_id: int,
     db: AsyncSession = Depends(get_db)

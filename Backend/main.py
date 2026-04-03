@@ -48,5 +48,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-app.include_router(items_crud.router)
+app.include_router(items_crud.public_router)
+app.include_router(items_crud.private_router)
 app.include_router(auth.router)
