@@ -6,51 +6,55 @@
 
       <h2>Cadastrar Item</h2>
 
-      <!-- Campos TEXTO -->
-      <div class="form-group">
-         <label>Nome do item:</label>
-         <input type="text" class="form-input">
-      </div>
+      <form id="anunciarForm">
+         <!-- Campos TEXTO -->
+         <div class="form-group">
+            <label>Nome do item:</label>
+            <input type="text" class="form-input" id="nome" required>
+         </div>
 
-      <div class="form-group">
-         <label>Local de encontro:</label>
-         <input type="text" class="form-input">
-      </div>
+         <div class="form-group">
+            <label>Local de encontro:</label>
+            <input type="text" class="form-input" id="local_encontro" required>
+         </div>
 
-      <div class="form-group">
-         <label>Descrição:</label>
-         <input type="text" class="form-input">
-      </div>
+         <div class="form-group">
+            <label>Descrição:</label>
+            <textarea id="descricao" class="form-input" rows="3"></textarea>
+         </div>
 
-      <div class="form-group">
-         <label>Categoria</label>
+         <div class="form-group">
+            <label>Categoria</label>
 
-         <select class="form-input">
-            <option value="">Selecione</option>
-            <option>Acessório</option>
-            <option>Eletrônico</option>
-            <option>Documento</option>
-            <option>Roupa/Calçado</option>
-            <option>Outros</option>
-         </select>
-      </div>
+            <select class="form-input" id="categoria" required>
+               <option value="">Selecione</option>
+               <option value="acessorio">Acessório</option>
+               <option value="eletronico">Eletrônico</option>
+               <option value="documento">Documento</option>
+               <option value="roupas_calcados">Roupa/Calçado</option>
+               <option value="outros">Outros</option>
+            </select>
+         </div>
 
-      <!-- Campo DATA -->
-      <div class="form-group">
-         <label>Data de encontro</label>
-         <input type="date" class="form-input" id="dataEncontro">
-      </div>
+         <!-- Campo DATA -->
+         <div class="form-group">
+            <label>Data de encontro</label>
+            <input type="date" class="form-input" id="data_encontro" required>
+         </div>
 
-      <!-- Campo FOTO -->
-      <div class="form-group">
-         <label>Foto do item</label>
+         <!-- Campo FOTO -->
+         <div class="form-group">
+            <label>Foto do item</label>
 
-         <input type="file" id="fotoInput" accept="image/*">
+            <input type="file" id="fotoInput" accept="image/*" multiple>
 
-         <img id="previewFoto" class="foto-preview" />
-      </div>
+            <div id="previewFoto" class="foto-preview"></div>
+         </div>
 
-      <button class="primary-btn">Cadastrar</button>
+         <button class="primary-btn" type="submit">Cadastrar</button>
+         <button type="button" class="secondary-btn" onclick="history.back()" style="margin-left: 10px;">Cancelar</button>
+      
+      </form>
 
    </div>
 

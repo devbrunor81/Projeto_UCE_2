@@ -9,7 +9,6 @@ const Auth = (()=>{
     }
 
     function isTokenExpired(token) {
-        return false; //quando o token retornado for valido, retirar a linha.
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             // payload.exp é o timestamp de expiração em segundos
@@ -50,11 +49,9 @@ const Auth = (()=>{
         
         // Verifica se o token está válido antes de retornar
         if (token && isTokenExpired(token)) {
-            console.log('Token expirado ao tentar recuperar');
             logout();
             return null;
         }
-        
         return token;
     }
 
@@ -88,7 +85,20 @@ const Auth = (()=>{
     }
 
 
-    return { login, logout, isAuthed, getToken, getUser, requireAuth, requireGuest, setToken };
+    // Expor função global para debug
+    window.debugToken = debugToken;
 
+    // Retornar o objeto Auth para uso global
+    return {
+        isAuthed,
+        login,
+        logout,
+        getToken,
+        getUser,
+        requireAuth,
+        requireGuest,
+        setToken,
+        isTokenExpired
+    };
 
-})()
+})();

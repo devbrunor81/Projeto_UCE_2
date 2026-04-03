@@ -151,6 +151,34 @@ async def list_itens(
 
 
 # GET BY ID
+@router.get("/items/{item_id}")
+async def get_item_by_id(
+    item_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    query = (select(Item).options(selectinload(Item.imagens)).where(Item.id == item_id, Item.ativo == True))
+
+    result = await db.execute(query)
+    item = result.scalar_one_or_none()
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Item não encontrado")
+
+    return {
+        "id": item.id,
+        "nome": item.nome,
+        "categoria": item.categoria,
+        "data_encontro": item.data_encontro,
+        "local_encontro": item.local_encontro,
+        "descricao": item.descricao,
+        "devolvido": item.devolvido,
+        "data_devolucao": item.data_devolucao,
+        "nome_resgatante": item.nome_resgatante,
+        "telefone_resgatante": item.telefone_resgatante,
+        "tipo_resgatante": item.tipo_resgatante,
+        "ativo": item.ativo,
+        "imagens": [img.path for img in item.imagens]
+    }
 
 
 

@@ -1,3 +1,5 @@
+
+
 <link rel="stylesheet" href="../css/items.css">
 
 <div class="form-container">
@@ -6,51 +8,56 @@
 
       <h2>Editar Item</h2>
 
-      <!-- Campos TEXTO -->
-      <div class="form-group">
-         <label>Nome do item:</label>
-         <input type="text" class="form-input">
-      </div>
+      <form id="editarForm">
+         <!-- Campos TEXTO -->
+         <div class="form-group">
+            <label>Nome do item:</label>
+            <input type="text" id="nome" class="form-input" required>
+         </div>
 
-      <div class="form-group">
-         <label>Local de encontro:</label>
-         <input type="text" class="form-input">
-      </div>
+         <div class="form-group">
+            <label>Local de encontro:</label>
+            <input type="text" id="local_encontro" class="form-input" required>
+         </div>
 
-      <div class="form-group">
-         <label>Descrição:</label>
-         <input type="text" class="form-input">
-      </div>
+         <div class="form-group">
+            <label>Descrição:</label>
+            <textarea id="descricao" class="form-input" rows="3"></textarea>
+         </div>
 
-      <div class="form-group">
-         <label>Categoria</label>
+         <div class="form-group">
+            <label>Categoria</label>
 
-         <select class="form-input">
-            <option value="">Selecione</option>
-            <option>Acessório</option>
-            <option>Eletrônico</option>
-            <option>Documento</option>
-            <option>Roupa/Calçado</option>
-            <option>Outros</option>
-         </select>
-      </div>
+            <select id="categoria" class="form-input" required>
+               <option value="">Selecione</option>
+               <option value="acessorio">Acessório</option>
+               <option value="eletronico">Eletrônico</option>
+               <option value="documento">Documento</option>
+               <option value="roupas_calcados">Roupa/Calçado</option>
+               <option value="outros">Outros</option>
+            </select>
+         </div>
 
-      <!-- Campo DATA -->
-      <div class="form-group">
-         <label>Data de encontro</label>
-         <input type="date" class="form-input">
-      </div>
+         <!-- Campo DATA -->
+         <div class="form-group">
+            <label>Data de encontro</label>
+            <input type="date" id="data_encontro" class="form-input" required>
+         </div>
 
-      <!-- Campo FOTO -->
-      <div class="form-group">
-         <label>Foto do item</label>
+         <!-- Campo FOTO -->
+         <div class="form-group">
+            <label>Foto do item (opcional - deixe em branco para manter as atuais)</label>
 
-         <input type="file" id="fotoInput" accept="image/*">
+            <input type="file" id="fotoInput" accept="image/*" multiple>
 
-         <img id="previewFoto" class="foto-preview" />
-      </div>
+            <div id="previewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+               <!-- Imagens atuais serão inseridas aqui -->
+            </div>
+         </div>
 
-      <button class="primary-btn">Terminar Edição</button>
+         <button type="submit" class="primary-btn">Terminar Edição</button>
+         <button type="button" class="secondary-btn" onclick="history.back()" style="margin-left: 10px;">Cancelar</button>
+      </form>
 
    </div>
 

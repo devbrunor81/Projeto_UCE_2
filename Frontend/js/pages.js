@@ -4,7 +4,9 @@ const Pages = (() => {
         const loginForm = document.getElementById('loginForm');
         
         // garante que o formulário existe na tela antes de adicionar o evento
-        if (!loginForm) return;
+        if (!loginForm) {
+            return;
+        }
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -44,7 +46,9 @@ const Pages = (() => {
         const dataInput = document.getElementById("dataEncontro");
 
         // se não estiver na página, sai
-        if (!dataInput) return;
+        if (!dataInput) {
+            return;
+        }
 
         // auto preencher data
         const hoje = new Date().toISOString().split("T")[0];
@@ -167,7 +171,9 @@ const Pages = (() => {
                 let startX = null;
                 track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
                 track.addEventListener('touchend', e => {
-                    if (startX === null) return;
+                    if (startX === null) {
+                        return;
+                    }
                     const delta = startX - e.changedTouches[0].clientX;
                     const cur = parseInt(carouselEl.dataset.current, 10);
                     if (Math.abs(delta) > 40) {
@@ -447,18 +453,166 @@ const Pages = (() => {
         ];
 
 
-        initItemsPage(_DEMO_ITEMS);
+        // Buscar dados reais do backend
+        async function carregarItens() {
+            try {
+                const token = Auth.getToken?.();
+
+                const response = await fetch('http://localhost:8000/items', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token && { 'Authorization': `Bearer ${token}` })
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Erro ao carregar itens:', response.status);
+                    initItemsPage([]);
+                    return;
+                }
+
+                const itensData = await response.json();
+
+                // Transformar dados do backend para o formato esperado pela UI
+                const itensMapeados = itensData.map(item => ({
+                    id: item.id,
+                    status: item.devolvido ? 1 : 0, // 0 = perdido, 1 = devolvido
+                    category: item.categoria,
+                    title: item.nome,
+                    desc: item.descricao || '',
+                    images: item.imagens.map(img => `http://localhost:8000/Images/${img}`),
+                    date: item.data_encontro,
+                }));
+
+                initItemsPage(itensMapeados);
+            } catch (error) {
+                console.error('Erro na conexão com o backend:', error);
+                initItemsPage([]);
+            }
+        }
+
+        // Carregar itens ao inicializar a página
+        carregarItens();
         Topbar.refresh();
         CardActions.refresh()
 
     } // fim visualizar
+
+    function anunciar() {
+
+        const dataInput = document.getElementById("data_encontro");
+        if (!dataInput) {
+            console.log('Campo data_encontro não encontrado');
+            return;
+        }
+
+        // auto preencher data
+        const hoje = new Date().toISOString().split("T")[0];
+        dataInput.value = hoje;
+
+        // Configurar preview das imagens
+        const previewFoto = document.getElementById('previewFoto');
+        const fotoInput = document.getElementById('fotoInput');
+        
+        if (previewFoto && fotoInput) {
+            fotoInput.addEventListener('change', (e) => {
+                previewFoto.innerHTML = '';
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.style.width = '120px';
+                        img.style.height = '120px';
+                        img.style.objectFit = 'cover';
+                        img.style.marginRight = '8px';
+                        img.style.borderRadius = '5px';
+                        previewFoto.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // Configurar event listener do formulário de envio
+        const form = document.getElementById('anunciarForm');
+        if (form) {
+            configurarSubmitAnunciar(form);
+        }
+    }
+
+    // Função para configurar o submit do anúncio
+    function configurarSubmitAnunciar(form) {
+        // Remover listeners anteriores para evitar duplicação
+        form.onsubmit = null;
+        
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            // Log dos valores dos campos
+            const nome = document.getElementById('nome').value;
+            const local = document.getElementById('local_encontro').value;
+            const descricao = document.getElementById('descricao').value;
+            const categoria = document.getElementById('categoria').value;
+            const data = document.getElementById('data_encontro').value;
+            const fotos = document.getElementById('fotoInput').files;
+            // Validar se todos os campos obrigatórios estão preenchidos
+            if (!nome || !local || !categoria || !data) {
+                alert('Preencha todos os campos obrigatórios!');
+                return;
+            }
+
+            if (fotos.length === 0) {
+                alert('Selecione pelo menos uma foto!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('nome', nome);
+            formData.append('local_encontro', local);
+            formData.append('descricao', descricao || '');
+            formData.append('categoria', categoria);
+            formData.append('data_encontro', data);
+
+            Array.from(fotos).forEach(file => formData.append('imagens', file));
+
+            try {
+                const token = Auth.getToken?.();
+
+                if (!token) {
+                    alert('Você precisa estar logado para cadastrar um item!');
+                    Router.navigate('/login');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8000/items', {
+                    method: 'POST',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Item cadastrado com sucesso!');
+                    Router.navigate('/visualizar');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    alert(`Erro ao cadastrar item: ${errorData.detail || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Erro na requisição de cadastro:', error);
+                alert('Erro de conexão com o servidor. Tente novamente.');
+            }
+        });
+    }
 
     function devolucao() {
         const dataInput = document.getElementById("dataDevolucao");
         const telInput = document.getElementById("telefone");
 
         // se não estiver na página, sai
-        if (!dataInput || !telInput) return;
+        if (!dataInput || !telInput) {
+            return;
+        }
 
         // auto preencher data
         const hoje = new Date().toISOString().split("T")[0];
@@ -484,11 +638,187 @@ const Pages = (() => {
         });
     }
 
+    
+    function editar() {
+        // Capturar ID da URL (query string)
+        const hash = window.location.hash.replace("#", "");
+        const [, query] = hash.split('?');
+        const params = Object.fromEntries(new URLSearchParams(query || ''));
+        const itemId = params.id;
+
+        if (!itemId) {
+            alert('ID do item não informado');
+            window.location.hash = '#/visualizar';
+            return;
+        }
+
+        const form = document.getElementById('editarForm');
+        if (!form) {
+            return;
+        }
+
+        // Buscar dados do item no backend
+        async function carregarDados() {
+            try {
+                const token = Auth.getToken?.();
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                
+                const response = await fetch(`http://localhost:8000/items/${itemId}`, {
+                    method: 'GET',
+                    headers
+                });
+
+                if (!response.ok) {
+                    alert('Erro ao carregar dados do item');
+                    window.location.hash = '#/visualizar';
+                    return;
+                }
+                
+
+                const item = await response.json();
+
+                // Pré-preencher os campos
+                document.getElementById('nome').value = item.nome || '';
+                document.getElementById('local_encontro').value = item.local_encontro || '';
+                document.getElementById('descricao').value = item.descricao || '';
+                document.getElementById('categoria').value = item.categoria || '';
+                document.getElementById('data_encontro').value = item.data_encontro || '';
+
+                // Exibir imagens atuais
+                const previewContainer = document.getElementById('previewContainer');
+                previewContainer.innerHTML = '';
+
+                if (item.imagens && item.imagens.length > 0) {
+                    const titulo = document.createElement('p');
+                    titulo.style.width = '100%';
+                    titulo.style.marginBottom = '10px';
+                    titulo.textContent = 'Imagens atuais:';
+                    previewContainer.appendChild(titulo);
+
+                    item.imagens.forEach((img, index) => {
+                        const container = document.createElement('div');
+                        container.style.position = 'relative';
+                        container.style.display = 'inline-block';
+
+                        const imgEl = document.createElement('img');
+                        imgEl.src = `http://localhost:8000/Images/${img}`;
+                        imgEl.style.width = '120px';
+                        imgEl.style.height = '120px';
+                        imgEl.style.objectFit = 'cover';
+                        imgEl.style.borderRadius = '8px';
+
+                        container.appendChild(imgEl);
+                        previewContainer.appendChild(container);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar item:', error);
+                alert('Erro de conexão com o servidor');
+                window.location.hash = '#/visualizar';
+            }
+        }
+
+        // Carregar dados ao iniciar
+        carregarDados();
+        
+
+        // Preview das novas imagens (se o usuário selecionar)
+        document.getElementById('fotoInput').addEventListener('change', (e) => {
+            const files = e.target.files;
+            const previewContainer = document.getElementById('previewContainer');
+
+            // Limpar apenas os previews de novas imagens
+            const previewsNovas = previewContainer.querySelectorAll('[data-nova="true"]');
+            previewsNovas.forEach(p => p.remove());
+
+            // Adicionar novos previews
+            Array.from(files).forEach((file) => {
+                const reader = new FileReader();
+
+                reader.onload = (event) => {
+                    const container = document.createElement('div');
+                    container.style.position = 'relative';
+                    container.style.display = 'inline-block';
+                    container.setAttribute('data-nova', 'true');
+
+                    const imgEl = document.createElement('img');
+                    imgEl.src = event.target.result;
+                    imgEl.style.width = '120px';
+                    imgEl.style.height = '120px';
+                    imgEl.style.objectFit = 'cover';
+                    imgEl.style.borderRadius = '8px';
+                    imgEl.style.opacity = '0.7';
+
+                    const indicador = document.createElement('span');
+                    indicador.textContent = '🆕';
+                    indicador.style.position = 'absolute';
+                    indicador.style.top = '5px';
+                    indicador.style.right = '5px';
+                    indicador.style.fontSize = '20px';
+
+                    container.appendChild(imgEl);
+                    container.appendChild(indicador);
+                    previewContainer.appendChild(container);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Submeter o formulário
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+
+            // Adicionar campos de texto
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('local_encontro', document.getElementById('local_encontro').value);
+            formData.append('descricao', document.getElementById('descricao').value);
+            formData.append('categoria', document.getElementById('categoria').value);
+            formData.append('data_encontro', document.getElementById('data_encontro').value);
+
+            // Adicionar novas imagens (se houver)
+            const files = document.getElementById('fotoInput').files;
+            if (files.length > 0) {
+                Array.from(files).forEach((file) => {
+                    formData.append('imagens', file);
+                });
+            }
+
+            try {
+                const token = Auth.getToken?.();
+
+                const response = await fetch(`http://localhost:8000/items/${itemId}`, {
+                    method: 'PUT',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Item atualizado com sucesso!');
+                    window.location.hash = '#/visualizar';
+                } else {
+                    const error = await response.json();
+                    alert(`Erro ao atualizar: ${error.detail || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar formulário:', error);
+                alert('Erro de conexão com o servidor');
+            }
+        });
+    }
+
     return {
         login,
         anunciar,
         visualizar,
         devolucao,
+        editar
     };
 
 })();
