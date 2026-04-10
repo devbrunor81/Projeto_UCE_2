@@ -6,39 +6,38 @@
 
       <h2>Registrar Devolução</h2>
 
-        <!-- DATA -->
-        <div class="form-group">
-            <label>Data de devolução</label>
-            <input type="date" class="form-input" id="dataDevolucao">
-        </div>
+<form id="formDevolucao">
 
-        <!-- NOME -->
-        <div class="form-group">
-            <label>Nome do resgatante</label>
-            <input type="text" class="form-input" id="nomeResgatante">
-        </div>
-
-        <!-- TELEFONE -->
-        <div class="form-group">
-            <label>Telefone do resgatante</label>
-            <input type="text" class="form-input" id="telefone">
-        </div>
-
-        <!-- TIPO -->
-        <div class="form-group">
-            <label>Tipo de resgatante</label>
-
-            <select class="form-input" id="tipoResgatante">
-                <option value="">Selecione</option>
-                <option>Aluno</option>
-                <option>Servidor</option>
-                <option>Visitante</option>
-                <option>Outro</option>
-            </select>
-        </div>
-
-        <button class="primary-btn" type="submit">
-            Confirmar Devolução
-        </button>
+    <div class="form-group">
+        <label>Data de devolução</label>
+        <input type="date" class="form-input" id="dataDevolucao" required>
     </div>
-</div>
+
+    <div class="form-group">
+        <label>Nome do resgatante</label>
+        <input type="text" class="form-input" id="nomeResgatante" required>
+    </div>
+
+    <div class="form-group">
+        <label>Tipo de resgatante</label>
+        <select class="form-input" id="tipoResgatante" required>
+            <option value="">Selecione</option>
+            <option>Aluno</option>
+            <option>Servidor</option>
+            <option>Visitante</option>
+            <option>Outro</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Telefone do resgatante</label>
+        <input type="text" class="form-input" id="telefone" required>
+    </div>
+
+    <button class="primary-btn" type="submit">
+        Confirmar Devolução
+    </button>
+
+    <button type="button" class="secondary-btn" onclick="history.back()" style="margin-left: 10px;">Cancelar</button>
+
+</form>

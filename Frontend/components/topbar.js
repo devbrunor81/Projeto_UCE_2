@@ -21,19 +21,27 @@ const Topbar = (() => {
     function _html() {
         return `
             <header class="topbar" id="topbar">
-                <img
-                    class="topbar__logo"
-                    src="https://www.ccsa.ufpb.br/ufpb/contents/noticias/nota-de-repudio/logo-ufpb.png/@@images/6ab839bc-0d0c-4f09-8325-698542f409fe.png"
-                    alt="Logo UFPB"
-                    onerror="this.style.display='none'"
-                >
-                <div class="topbar__name">
-                    UFPB
-                    <span>Achados &amp; Perdidos</span>
-                </div>
-                <nav class="topbar__actions" id="topbar-actions" aria-label="Ações do usuário">
-                    <!-- preenchido por _renderActions() -->
-                </nav>
+
+                <a href="/" class="topbar__brand">
+                    
+                    <div class="topbar__left">
+                        <img
+                            class="topbar__logo"
+                            src="https://www.ufpb.br/acessoainformacao/contents/imagens/logo/brasaooficial.png/@@images/c7c5e93b-c273-4503-a760-64c83b712fef.png"
+                            alt="Logo UFPB"
+                            onerror="this.style.display='none'"
+                        >
+                        <div class="topbar__ufpb">UFPB</div>
+                    </div>
+
+                    <div class="topbar__title">
+                        Achados &amp; Perdidos
+                    </div>
+
+                </a>
+
+                <nav class="topbar__actions" id="topbar-actions"></nav>
+
             </header>`;
     }
 

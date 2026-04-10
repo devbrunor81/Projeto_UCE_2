@@ -11,7 +11,7 @@ const Pages = (() => {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const email = document.getElementById('usuario').value;
+            const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
 
             try {
@@ -20,7 +20,7 @@ const Pages = (() => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email: email, senha: senha })
+                    body: JSON.stringify({ usuario: usuario, senha: senha })
                 });
 
                 if (response.ok) {
@@ -32,7 +32,7 @@ const Pages = (() => {
 
                     Router.navigate('/visualizar'); 
                 } else {
-                    alert('Email ou senha incorretos!');
+                    alert('Usuario ou senha incorretos!');
                 }
             } catch (error) {
                 console.error('Erro na requisição:', error);
@@ -308,10 +308,30 @@ const Pages = (() => {
                 CardActions.bind(grid, {
                     onEdit:   (id) => { window.location.hash = `#/editar?id=${id}`; },
                     onReturn: (id) => { window.location.hash = `#/devolucao?id=${id}`;},
-                    onRemove: (id) => {
-                        const idx = items.findIndex(i => i.id === id);
-                        if (idx !== -1) { items.splice(idx, 1); applyFilters(); }
-                    }
+                    onRemove: async (id) => {
+                                try {
+                                    const response = await fetch(`http://localhost:8000/items/${id}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${Auth.getToken()}`
+                                        }
+                                    });
+
+                                    if (!response.ok) {
+                                        throw new Error('Erro ao remover item');
+                                    }
+
+                                    // remove da tela
+                                    const card = document.querySelector(`.item-card[data-id="${id}"]`);
+                                    if (card) card.remove();
+
+                                    alert('Item removido com sucesso!');
+                                } catch (error) {
+                                    console.error(error);
+                                    alert('Erro ao remover item');
+                                }
+                            }
                 });
             }
 
@@ -481,7 +501,7 @@ const Pages = (() => {
                     category: item.categoria,
                     title: item.nome,
                     desc: item.descricao || '',
-                    images: item.imagens.map(img => `http://localhost:8000/Images/${img}`),
+                    images: item.imagens.map(img => `http://localhost:8000/images/${img}`),
                     date: item.data_encontro,
                 }));
 
@@ -608,11 +628,20 @@ const Pages = (() => {
     function devolucao() {
         const dataInput = document.getElementById("dataDevolucao");
         const telInput = document.getElementById("telefone");
+        const nomeInput = document.getElementById("nomeResgatante");
+        const tipoInput = document.getElementById("tipoResgatante");
 
         // se não estiver na página, sai
         if (!dataInput || !telInput) {
             return;
         }
+
+        // pegar ID do item na URL
+        const hash = window.location.hash.replace("#", "");
+        const [, query] = hash.split('?');
+        const params = Object.fromEntries(new URLSearchParams(query || ''));
+        const itemId = params.id;
+
 
         // auto preencher data
         const hoje = new Date().toISOString().split("T")[0];
@@ -636,11 +665,44 @@ const Pages = (() => {
 
             telInput.value = v;
         });
+
+        // SUBMIT
+        document.getElementById("formDevolucao").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            try {
+                const token = Auth.getToken?.();
+
+                const formData = new FormData();
+                formData.append("data_devolucao", dataInput.value);
+                formData.append("nome_resgatante", nomeInput.value);
+                formData.append("telefone_resgatante", telInput.value);
+                formData.append("tipo_resgatante", tipoInput.value);
+
+                const response = await fetch(`http://localhost:8000/items/${itemId}`, {
+                    method: "PUT",
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Item devolvido com sucesso!");
+                    window.location.hash = "#/visualizar";
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || "Erro ao devolver item");
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Erro de conexão");
+            }
+        }); 
     }
 
     
     function editar() {
-        // Capturar ID da URL (query string)
+        // Capturar ID do item da URL (query string)
         const hash = window.location.hash.replace("#", "");
         const [, query] = hash.split('?');
         const params = Object.fromEntries(new URLSearchParams(query || ''));
@@ -703,8 +765,11 @@ const Pages = (() => {
                         container.style.position = 'relative';
                         container.style.display = 'inline-block';
 
+                        // MARCA como antiga
+                        container.setAttribute('data-antiga', 'true');
+
                         const imgEl = document.createElement('img');
-                        imgEl.src = `http://localhost:8000/Images/${img}`;
+                        imgEl.src = `http://localhost:8000/images/${img}`;
                         imgEl.style.width = '120px';
                         imgEl.style.height = '120px';
                         imgEl.style.objectFit = 'cover';
@@ -731,7 +796,11 @@ const Pages = (() => {
             const files = e.target.files;
             const previewContainer = document.getElementById('previewContainer');
 
-            // Limpar apenas os previews de novas imagens
+            // Remove preview de imagens antigas
+            const antigas = previewContainer.querySelectorAll('[data-antiga="true"]');
+            antigas.forEach(p => p.remove());
+
+            // Remove previews de imagens selecionadas que foram descartadas
             const previewsNovas = previewContainer.querySelectorAll('[data-nova="true"]');
             previewsNovas.forEach(p => p.remove());
 

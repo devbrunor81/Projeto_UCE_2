@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from Utils.security import hash_senha
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -47,6 +48,8 @@ app.add_middleware(
     allow_methods=["*"], 
     allow_headers=["*"], 
 )
+
+app.mount("/images", StaticFiles(directory="Images"), name="images")
 
 app.include_router(items_crud.public_router)
 app.include_router(items_crud.private_router)

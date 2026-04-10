@@ -9,12 +9,12 @@ from Utils.security import verificar_senha, criar_token
 router = APIRouter(tags=["autenticacao"])
 
 class LoginData(BaseModel):
-    email: str 
+    usuario: str 
     senha: str
 
 @router.post("/login")
 async def login(dados: LoginData, db: AsyncSession = Depends(get_db)):
-    query = select(User).where(User.username == dados.email)
+    query = select(User).where(User.username == dados.usuario)
     result = await db.execute(query)
     usuario_db = result.scalar_one_or_none()
 
