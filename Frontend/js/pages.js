@@ -882,49 +882,57 @@ const Pages = (() => {
         });
     }
 
-    function credenciais() {
+function credenciais() {
 
-        document.getElementById('CredenciaisForm').addEventListener('submit', async (e) => {
+    document.getElementById('CredenciaisForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const senhaAtual = document.getElementById('senhaAtual').value;
         const novaSenha = document.getElementById('novaSenha').value;
         const confirmarNovaSenha = document.getElementById('confirmarNovaSenha').value;
 
-        // validação simples
+        // validação frontend
         if (novaSenha && novaSenha !== confirmarNovaSenha) {
             alert('As senhas não coincidem');
             return;
         }
 
+        const formData = new FormData();
+
+        formData.append("atual_password", senhaAtual);
+
+        if (username) {
+            formData.append("username", username);
+        }
+
+        if (novaSenha) {
+            formData.append("new_password", novaSenha);
+            formData.append("confirm_new_password", confirmarNovaSenha);
+        }
+
         try {
-            const response = await fetch('/api/usuarios/me', {
-                method: 'PUT', // ou PATCH
+            const response = await fetch('http://localhost:8000/users/me', {
+                method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${Auth.getToken()}`
                 },
-                body: JSON.stringify({
-                    usuario,
-                    senha_atual: senhaAtual,
-                    nova_senha: novaSenha || null
-                })
+                body: formData
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error('Erro ao atualizar');
+                throw new Error(data.detail || 'Erro ao atualizar');
             }
 
             alert('Dados atualizados com sucesso!');
 
         } catch (err) {
             console.error(err);
-            alert('Erro ao atualizar credenciais');
+            alert(err.message);
         }
     });
-
-
-    }
+}
 
     return {
         login,
