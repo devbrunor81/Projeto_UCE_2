@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from Routers import items_crud, auth
+from Routers import items_crud, auth, usuario
 from Database.database import engine, Base
 from Database.models import items, users
 from Utils.soft_delete import scheduler, start_scheduler
@@ -54,3 +54,4 @@ app.mount("/images", StaticFiles(directory="Images"), name="images")
 app.include_router(items_crud.public_router)
 app.include_router(items_crud.private_router)
 app.include_router(auth.router)
+app.include_router(usuario.router)
