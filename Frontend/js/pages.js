@@ -882,12 +882,57 @@ const Pages = (() => {
         });
     }
 
+    function credenciais() {
+
+        document.getElementById('CredenciaisForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const senhaAtual = document.getElementById('senhaAtual').value;
+        const novaSenha = document.getElementById('novaSenha').value;
+        const confirmarNovaSenha = document.getElementById('confirmarNovaSenha').value;
+
+        // validação simples
+        if (novaSenha && novaSenha !== confirmarNovaSenha) {
+            alert('As senhas não coincidem');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/usuarios/me', {
+                method: 'PUT', // ou PATCH
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({
+                    usuario,
+                    senha_atual: senhaAtual,
+                    nova_senha: novaSenha || null
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar');
+            }
+
+            alert('Dados atualizados com sucesso!');
+
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao atualizar credenciais');
+        }
+    });
+
+
+    }
+
     return {
         login,
         anunciar,
         visualizar,
         devolucao,
-        editar
+        editar,
+        credenciais,
     };
 
 })();

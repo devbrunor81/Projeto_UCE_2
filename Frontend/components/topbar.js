@@ -45,27 +45,36 @@ const Topbar = (() => {
             </header>`;
     }
 
-    function _actionsHtml(authed) {
-        if (authed) {
-            return `
-                <a class="topbar__btn topbar__btn--primary" href="#/anunciar" aria-label="Criar novo anúncio">
-                    + Novo Item
-                </a>
-                <button class="topbar__btn topbar__btn--ghost topbar__btn--icon" id="topbar-btn-logout" aria-label="Sair da conta">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                </button>
-                `
-        }
+function _actionsHtml(authed) {
+    if (authed) {
+
         return `
-            <a class="topbar__btn topbar__btn--ghost" href="#/login" aria-label="Fazer login">
-                Login
-            </a>`;
+            <a class="topbar__btn topbar__btn--primary" href="#/anunciar">
+                + Novo Item
+            </a>
+
+            <div class="topbar__user">
+                <button class="topbar__btn topbar__btn--ghost topbar__btn--user" id="topbar-user-btn">
+                    Usuário ▼
+                </button>
+
+                <div class="topbar__dropdown">
+                    <button class="topbar__dropdown-item" data-action="update">
+                        Atualizar credenciais
+                    </button>
+                    <button class="topbar__dropdown-item" data-action="logout">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        `;
     }
+
+    return `
+        <a class="topbar__btn topbar__btn--ghost" href="#/login">
+            Login
+        </a>`;
+}
 
     // ─── Render das actions ───────────────────────────────────────
     function _renderActions() {
@@ -76,10 +85,36 @@ const Topbar = (() => {
         actionsEl.innerHTML = _actionsHtml(authed);
 
         if (authed) {
-            document.getElementById('topbar-btn-logout')?.addEventListener('click', () => {
-                Auth.logout();
-                CardActions.refresh();
-                refresh();
+            const userBox = document.querySelector('.topbar__user');
+            const btn = document.getElementById('topbar-user-btn');
+
+            // abrir/fechar dropdown
+            btn?.addEventListener('click', () => {
+                userBox.classList.toggle('open');
+            });
+
+            // ações
+            userBox?.querySelectorAll('.topbar__dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.dataset.action;
+
+                    if (action === 'logout') {
+                        _logout();
+                        CardActions.refresh();
+                        refresh();
+                    }
+
+                    if (action === 'update') {
+                        Router.navigate('/credenciais');
+                    }
+                });
+            });
+
+            // fechar ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!userBox.contains(e.target)) {
+                    userBox.classList.remove('open');
+                }
             });
         }
     }

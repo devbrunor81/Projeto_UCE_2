@@ -28,7 +28,13 @@ const Router = (() =>{
             template: 'pages/editar.html',
             init: () => Pages?.editar?.(),
             guard: () => Auth.requireAuth()
-        }
+        },
+
+        '/credenciais': {
+        template: 'pages/credenciais_usuario.html',
+        init: () => Pages?.credenciais?.(),
+        guard: () => Auth.requireAuth()
+}
     }
 
     const appEl = document.getElementById('app')
